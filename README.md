@@ -102,7 +102,65 @@ CREATE TABLE [rpt].[t_82292_BSC_ESTIMATOR_MATRIX_RESULT_DIV]
 
 Once our baseline tables were ready to go, it was time to start some date manipulations.  Due to the amount of data and the fact that we need to retain information for the year in our final reporting product we don't want to max out server resources as the year moves forward regenerating previous information across all levels every time the data was pulled - for example when December rolls around we don't want to regenerate all information from January to December - we will append information to our baseline tables instead.  
 
-The server data did contain some baseline Calendar tables but we manipulated a few things in order to suit our needs.  
+The server data did contain some baseline calendar tables but we manipulated a few things in order to suit our needs.  
+
+We set up a stored procedue that can be fired via Powershell later on    
+
+We do use a function created on the server as well to find dates before and after our selected date referred to as [fn_Calendar_TY_LY]
+
+~~~~
+CREATE PROCEDURE [rpt].[sp_BB_MATRIX_SETUP_CURRENT_WEEKENDING]  
+
+AS
+
+BEGIN
+
+-- Begin Variable Setup
+--------------------------------------------------------------------------------------------------------------------
+Declare @Current_WE				as Date
+Declare @Staged_Date				as Date
+Declare @Matrix_Max_Date			as Date
+Declare @CMO					as nvarchar(2)
+Declare @Current_Year				as nvarchar(4)
+Declare @DIS_Matrix_Max_MTH			as nvarchar(2)
+Declare @DIV_Matrix_Max_MTH			as nvarchar(2)
+
+
+-- Find Maximun date set in raw matrix file
+Set @Matrix_Max_Date	= (SELECT MAX([TY_WND_DT]) FROM [DADH1001].[rpt].[t_82292_BSC_ESTIMATOR_MATRIX_RAW])
+
+-- Find latest Month in District Raw File for Monthly Setups / Adds
+Set @DIS_Matrix_Max_MTH = (SELECT MAX([MO_NUM]) FROM [DADH1001].[rpt].[t_82292_BSC_ESTIMATOR_MATRIX_RAW])
+
+-- Finds out if there are Monthly slots created in the District results table so we don't overwrite if so
+Set @DIV_Matrix_Max_MTH = (SELECT MAX([MO_NUM]) FROM [DADH1001].[rpt].[t_82292_BSC_ESTIMATOR_MATRIX_RAW])
+
+-- Find current week ending
+Set @Current_WE	=	(SELECT Top 1 WeekEndDate_TY
+			FROM [DADH1001].[src].[fn_Calendar_TY_LY] (GETDATE(),0,0) --START DATE, WEEKS BEFORE, WEEKS AFTER  
+			WHERE [DayDate_TY]<GETDATE()-1
+			)
+
+-- Find current Month
+Set @CMO	=	(Select Top 1 monthnumber from  [DADH1001].[src].[t_corpcodes_calendar]
+			Where WeekEndDate = @Current_WE
+			)
+									
+-- Find current Year
+Set @Current_Year=	(Select Top 1 YearNumber from  [DADH1001].[src].[t_corpcodes_calendar]
+			Where WeekEndDate = @Current_WE
+			)
+
+-- End Variable Setup
+------------------------------------------------------------------------------------------------------
+
+~~~~
+
+---
+
+Once we established what our current week status was - we used some temp tables to set up TY/LY Calendar table
+
+
 
 
 
