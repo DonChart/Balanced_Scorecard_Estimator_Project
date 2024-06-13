@@ -9,7 +9,7 @@ daily without intervention after completion.  It was built in a manner that year
 
 ## Table of Contents
 - [Tools](#Tools)
-- [Data Acquisition / SQL Preperation](#Data-Acquisition-/-SQL-Preperation)
+- [Data Acquisition / SQL Preperation](#Data-Acquisition)
 - [Excel Configuration](#Excel-Configuration)
 
 
@@ -21,7 +21,7 @@ On Prem T-SQL database, moderately normalized
 - Excel   | Data Presentation to End User
 - T-Sql   | Data Acqusition
 
-## Data Acquisition / SQL Preperation
+## Data Acquisition
 
 - In order to maintain visible granualrity for the end users, a rollup approach was used.  All of the finer points of data were accumulated and each of those points would rollup to created the larger segmented groups.
 - Three injection tables were created on the database
