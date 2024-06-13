@@ -11,6 +11,9 @@ daily without intervention after completion.  It was built in a manner that year
 - [Tools](#Tools)
 - [Data Acquisition / SQL Preperation](#Data-Acquisition)
 - [Excel Configuration](#Excel-Configuration)
+- [VBA](#Some-Vba)
+- [Formulas](#Formulas)
+- [Final Thoughts](#Final-Thoughts)
 
 
 ## Data Sources
