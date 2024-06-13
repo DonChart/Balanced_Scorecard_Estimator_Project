@@ -15,3 +15,101 @@ On Prem T-SQL database, moderately normalized
 - T-Sql   | Data Acqusition
 
 ## Data Acquisition / Preperation
+
+- In order to maintain visible granualrity for the end users, a rollup approach was used.  All of the finer points of data were accumulated and each of those points would rollup to created the larger segmented groups.
+- Three injection tables were created on the database
+  -    Matrix_Raw
+  -    Matrix_Raw_Division
+  -    Matrix_Raw_District
+
+---
+- The base Matrix_Raw table would contain our lowest level of data and allow for further analysis and use in the future if any results were required outside of the initial scope.  This table would contain our complete hierarchal breakdown.  there is nothing outstanding about this base table other than it's going to be the base layer of all applicable data moving forward.  This base table is the building block for all analysis moving forward.
+~~~~
+CREATE TABLE [rpt].[t_82292_BSC_ESTIMATOR_MATRIX_RAW]
+(
+	[REC_ID]			[int] IDENTITY(1,1) NOT NULL,
+	[TY_DAY_DT]			[date] NULL,
+	[TY_WND_DT]			[date] NULL,
+	[PKG_Week]			[char](2) NULL,
+	[MO_NUM]			[char](2) NOT NULL,
+	[MO_NAME]			[nvarchar](30) NULL,
+	[QTR_NR]			[char](2) NOT NULL,
+	[TY_Year]			[char](4) NOT NULL,
+	[REG_NR]			[varchar](4) NULL,
+	[REG_NA]			[varchar](30) NULL,
+	[REGION]			[varchar](37) NULL,
+	[OP_GRP_NR]			[varchar](4) NULL,
+	[OP_GRP_NA]			[varchar](25) NULL,
+	[DIS_NR]			[varchar](4) NULL,
+	[DIS_NA]			[varchar](30) NULL,
+	[DISTRICT]			[varchar](37) NULL,
+	[DIV_NR]			[varchar](4) NULL,
+	[DIV_NA]			[varchar](12) NULL,
+	[DIVISION]			[varchar](19) NULL,
+	[CTR_NR]			[varchar](6) NULL,
+	[CTR_NA]			[varchar](35) NULL,
+	[BLD_NR]			[varchar](5) NULL,
+	[BLD_NA]			[varchar](40) NULL,
+	[BUILDING]			[varchar](49) NULL,
+	[ID_1_Element_ID]		[int] NOT NULL,
+	[ID_1_Volume]			[int] NOT NULL,
+	[ID_1_Errors]			[int] NOT NULL,
+	[ID_2A_Element_ID]		[int] NOT NULL,
+	[ID_2A_Volume]			[int] NOT NULL,
+	[ID_2A_Errors]			[int] NOT NULL,
+	[ID_2B_Element_ID]		[int] NOT NULL,
+	[ID_2B_Volume]			[int] NOT NULL,
+	[ID_2B_Errors]			[int] NOT NULL,
+	[ID_2C_Element_ID]		[int] NOT NULL,
+	[ID_2C_Volume]			[int] NOT NULL,
+	[ID_2C_Errors]			[int] NOT NULL,
+	[ID_2D_Element_ID]		[int] NOT NULL,
+	[ID_2D_Volume]			[int] NOT NULL,
+	[ID_2D_Errors]			[int] NOT NULL,
+~~~~
+
+  This scope was carried out across many more trackables...
+
+---
+
+  In our rollup tables for Division and District we encorporated some other Matrix elements for our reporting calculations and left out some of the hierarchal granularity becasue we will have summarized data contained within
+
+~~~~
+CREATE TABLE [rpt].[t_82292_BSC_ESTIMATOR_MATRIX_RESULT_DIV]  
+(  
+	[TY_WND_DT]              [date] NULL,  
+	[PKG_WEEK]               [char](2) NULL,  
+	[MO_NUM]                 [char](2) NULL,  
+	[REGION]                 [varchar](37) NULL,  
+	[District]               [varchar](37) NULL,  
+	[Division]               [varchar](19) NULL,  
+	[OP_Grp_NR]              [nchar](10) NULL,  
+	[OP_Grp_NA]              [nchar](50) NULL,  
+	[ID_1_Element_ID]        [int] NULL,  
+	[ID_1_Volume]            [int] NULL,  
+	[ID_1_Errors]            [int] NULL,  
+	[ID_1_Freq]              [int] NULL,  
+	[ID_1_Goal]              [int] NULL,  
+	[ID_1_Eff]               [float] NULL,  
+	[ID_1_Points]            [float] NULL,  
+	[ID_1_Possible_Points]   [int] NULL,  
+~~~~
+ Notice that we are including the Volume and Errors fields (Numerator- Denominator for our percentages to generate our Frequency) as well as a Goal, Effective, Points and Possible Points fields 
+ 
+ Again - This scope was carried out across many more trackables...
+
+ ---
+
+Once our baseline tables were ready to go, it was time to start some date manipulations.  Due to the amount of data and the fact that we need to retain information for the year in our final reporting product we don't want to max out server resources as the year moves forward regenerating previous information across all levels every time the data was pulled - for example when December rolls around we don't want to regenerate all information from January to December - we will append information to our baseline tables instead.  
+
+The server data did contain some baseline Calendar tables but we manipulated a few things in order to suit our needs.  
+
+
+
+ 
+  
+
+  
+  	
+
+
