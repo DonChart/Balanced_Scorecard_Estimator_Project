@@ -861,11 +861,16 @@ Imported data comes into excel completely configured and ready to use as seen he
 
 
 What we do now is some excel trickery using pivot tables and showing/hiding rows using VBA to contain information on one screen for the end user and a button to jump from Weekly/Monthly and   
-with the gridlines and row/column headers hidden the transition to tue user is seamless -- to indicate the changes I'll leave the Headins on here  
+with the gridlines and row/column headers hidden the transition to tue user is seamless -- to indicate the changes I'll leave the headings on here  
 
 notice - a weekly presentation has rows 21-42 visible and a monthly 60-51 - 
 
-###Weekly
+### Weekly
+----
+
+![BSC_WEEKLY](https://github.com/DonChart/Balanced_Scorecard_Estimator_Project/assets/168656623/f814d978-a00e-47ac-88d2-1dbc0d4f7f0e)
+
+
 
 
 
