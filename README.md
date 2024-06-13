@@ -854,6 +854,21 @@ doing calculations within excel slowing down user response times
 
 ## Excel Configuration
 
+Imported data comes into excel completely configured and ready to use as seen here:
+
+
+![BSC_1](https://github.com/DonChart/Balanced_Scorecard_Estimator_Project/assets/168656623/b4de5a05-db55-488e-808f-b9df4b82d156)
+
+
+What we do now is some excel trickery using pivot tables and showing/hiding rows using VBA to contain information on one screen for the end user and a button to jump from Weekly/Monthly and   
+with the gridlines and row/column headers hidden the transition to tue user is seamless -- to indicate the changes I'll leave the Headins on here  
+
+notice - a weekly presentation has rows 21-42 visible and a monthly 60-51 - 
+
+###Weekly
+
+
+
 
  
 
