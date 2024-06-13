@@ -158,8 +158,120 @@ Set @Current_Year=	(Select Top 1 YearNumber from  [DADH1001].[src].[t_corpcodes_
 
 ---
 
-Once we established what our current week status was - we used some temp tables to set up TY/LY Calendar table
+Once we established what our current week status was - we used some temp tables to set up TY/LY Calendar table.  
+This gave us a complete reference table for all date possibilities across our Matrix table.
 
+~~~~
+-- Begin Calendar Dates
+
+IF @Matrix_Max_Date < @Current_WE 
+BEGIN
+
+If Object_ID('tempdb..#CAL_TY') is not null 
+BEGIN
+Drop Table #CAL_TY
+END
+--------------------------------------------------
+Select * into #CAL_TY
+FROM
+(
+Select
+						 
+	  convert(datetime, DayDate,23) as TY_DAY_DT
+	, DOW_CD as TY_DOW
+	, DOW_NA as TY_DOW_NA
+	, convert(datetime, WeekEndDate,23) as TY_WND_DT
+	, pkgweeknumber as PKG_Week
+	, monthnumber as MO_NUM
+	, DATENAME(MONTH,Dateadd(MONTH,cast(MonthNumber as int),'2020-12-01'))as MO_NAME
+	, quarternumber as QTR_NR
+	, yearnumber as TY_Year
+	, OperatingDayInd as OP_Day
+
+FROM	 [DADH1001].[src].[t_corpcodes_calendar]
+WHERE	 yearnumber=year (getdate()) 
+						
+) CAL_TY
+
+If Object_ID('tempdb..#CAL_LY') is not null 
+BEGIN
+Drop Table #CAL_LY
+END
+--------------------------------------------------
+	Select * into #CAL_LY
+	FROM
+	(
+		Select   
+				convert(datetime, DayDate,23) as LY_DAY_DT
+			, DOW_CD as LY_DOW
+			, DOW_NA as LY_DOW_NA
+			, convert(datetime, WeekEndDate,23) as LY_WND_DT
+			, pkgweeknumber as PKG_Week
+			, monthnumber as MO_NUM
+			, DATENAME(MONTH,Dateadd(MONTH,cast(MonthNumber as int),'2020-12-01'))as MO_NAME
+			, quarternumber as QTR_NR
+			, yearnumber as Year
+			, OperatingDayInd as OP_Day
+
+	FROM [DADH1001].[src].[t_corpcodes_calendar]
+	where yearnumber= year (Dateadd(year, -1,getdate()))
+	) CAL_LY
+--------------------------------------------------
+			
+If Object_ID('tempdb..#CALLY') is not null 
+BEGIN
+Drop Table #CALLY
+END
+
+SELECT * INTO #CALLY
+FROM (
+			Select 
+                         TY_WND_DT		
+			,TY_DAY_DT	
+			,TY_DOW	
+			,TY_DOW_NA
+			,LY_WND_DT		
+			,LY_DAY_DT	
+			,#CAL_TY.OP_Day
+			,#CAL_TY.PKG_Week	
+			,#CAL_TY.MO_Num	
+			,#CAL_TY.MO_Name
+			,#CAL_TY.QTR_NR
+			,#CAL_TY.TY_Year
+					
+		FROM #CAL_TY
+		Inner Join	
+			#CAL_LY on #CAL_TY.PKG_Week = #CAL_LY.pkg_week
+					AND TY_DOW = LY_DOW
+					AND TY_WND_DT = @Current_WE		
+					
+		) ALL_CAL
+
+-- End Calendar Dates
+------------------------------------------------------------------------------------------------------
+~~~~
+----
+This resulted in a complete breakout of our requred dates for the year
+~~~~
+
+TY_WND_DT	TY_DAY_DT	TY_DOW	TY_DOW_NA	LY_WND_DT	LY_DAY_DT	OP_Day	PKG_Week	MO_Num	MO_Name	QTR_NR	TY_Year
+1/6/2024	12/31/2023	1	Sunday		1/7/2023	1/1/2022	1	1	1	January	1	2024
+1/6/2024	1/1/2024	2	Monday		1/7/2023	1/2/2022	2	1	1	January	1	2024
+1/6/2024	1/2/2024	3	Tuesday		1/7/2023	1/3/2022	3	1	1	January	1	2024
+1/6/2024	1/3/2024	4	Wednesday	1/7/2023	1/4/2022	4	1	1	January	1	2024
+1/6/2024	1/4/2024	5	Thursday	1/7/2023	1/5/2022	5	1	1	January	1	2024
+1/6/2024	1/5/2024	6	Friday		1/7/2023	1/6/2022	6	1	1	January	1	2024
+1/6/2024	1/6/2024	7	Saturday	1/7/2023	1/7/2022	7	1	1	January	1	2024
+1/13/2024	1/7/2024	1	Sunday		1/14/2023	1/8/2022	1	2	1	January	1	2024
+1/13/2024	1/8/2024	2	Monday		1/14/2023	1/9/2022	2	2	1	January	1	2024
+1/13/2024	1/9/2024	3	Tuesday		1/14/2023	1/10/2022	3	2	1	January	1	2024
+1/13/2024	1/10/2024	4	Wednesday	1/14/2023	1/11/2022	4	2	1	January	1	2024
+1/13/2024	1/11/2024	5	Thursday	1/14/2023	1/12/2022	5	2	1	January	1	2024
+1/13/2024	1/12/2024	6	Friday		1/14/2023	1/13/2022	6	2	1	January	1	2024
+1/13/2024	1/13/2024	7	Saturday	1/14/2023	1/14/2022	7	2	1	January	1	2024
+
+etc...
+~~~~
 
 
 
