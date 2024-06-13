@@ -846,6 +846,38 @@ SET
 	 
 END
 ~~~~
+
+----
+We also create some Tier functions on the server for the queries to call on to calculate points, here we see that you need to score at least 80% to get points  
+on this particular element, more as it increases - 
+
+~~~~
+Create FUNCTION [src].[fn_Tier_80]
+(@EFF float, @Points int )
+
+RETURNS float
+AS
+BEGIN
+	-- Declare the return variable here
+	DECLARE @Result float;
+
+	
+	SELECT @Result=
+		   Case When @eff >   1   then  @points
+				When @eff >= .95  then (@points *.80)
+				When @eff >= .90  then (@points *.60)
+				When @eff >= .85  then (@points *.40)
+				When @eff >= .80  then (@points *.20)
+				Else 0
+			End
+
+	-- Return the result of the function
+	RETURN @Result;
+~~~~
+
+
+
+
 ----
 We modify this baseline sproc with edits across the raw data sources and inject the same way to the three primary matrix tables for Raw, Division, and District.  We are also aggregating Monthy results as such as well.
 All of this data then correlated in one final sproc that contains every single breakout and index calculation -- this is all done server side so that any excel refresh requirments are intantaneous and we aren't 
@@ -865,12 +897,71 @@ with the gridlines and row/column headers hidden the transition to tue user is s
 
 notice - a weekly presentation has rows 21-42 visible and a monthly 60-51 - 
 
-### Weekly
+### Weekly Excel Results
 ----
 
 ![BSC_WEEKLY](https://github.com/DonChart/Balanced_Scorecard_Estimator_Project/assets/168656623/f814d978-a00e-47ac-88d2-1dbc0d4f7f0e)
 
+----
+### Monthly Excel Results
 
+![BSC_WEEKLY](https://github.com/DonChart/Balanced_Scorecard_Estimator_Project/assets/168656623/8402ce1f-1c69-4d0e-ae87-1eb3ab46613e)
+
+----
+
+### Some VBA
+
+Not a lot of excel VBA required but some creative thinking can make the transition for the end user completely seamless when clicking on a button:
+~~~~
+Sub HIDE_WEEKLY()
+
+Application.ScreenUpdating = False  ' Hide the Flicker
+    Rows("10:46").Select
+    Selection.EntireRow.Hidden = True
+    Rows("50:88").Select
+    Selection.EntireRow.Hidden = False
+    Range("A1").Select
+End Sub
+
+Sub HIDE_MONTHLY()
+Application.ScreenUpdating = False  ' Hide the Flicker
+    Rows("10:45").Select
+    Selection.EntireRow.Hidden = False
+    Rows("45:88").Select
+    Selection.EntireRow.Hidden = True
+    
+    ActiveWindow.ScrollRow = 89
+    ActiveWindow.ScrollRow = 45
+    ActiveWindow.ScrollRow = 44
+    ActiveWindow.ScrollRow = 43
+    ActiveWindow.ScrollRow = 35
+    ActiveWindow.ScrollRow = 31
+    ActiveWindow.ScrollRow = 23
+    ActiveWindow.ScrollRow = 21
+    
+    Range("A1").Select
+    
+End Sub
+
+~~~~
+
+### Formulas
+----
+Contained within the excel file are some standard formula pulls to get everything in order -- 
+
+#### Vlookups
+Grabbing over the data into our final presentation screens  
+=IF(ISERROR(VLOOKUP($G60,MONTHLY!$F$2:$LS$1145,K$46,FALSE))," ",VLOOKUP($G60,MONTHLY!$F$2:$LS$1145,K$46,FALSE))  
+
+#### Rankings
+Doing some sumproduct ranking to make sure we account for ties and gaps in information  
+=SUMPRODUCT((M60<=M$60:M$81)/COUNTIF(M$60:M$81,M$60:M$81))
+
+## Final Thoughts
+
+This particular project was a lot more in depth and complex that I first thought when laying out its requirements with the stakeholders.  It's descriptive seems simple, for every x identity, there will be y number of scorable achievements - add all scores up and rank them over time across the organizational hierarchy.  The back end SQL is the real workhorse of this project because it eliminates a lot of front end Excel calculations.  I attempted to modualize each section so that it would be flexible enough for future changes and uses.  
+
+It would have been far easier to pull raw data into Excel using PowerPivot and DAX calculation information on the fly as the sheet was manipulated by the user but the number crunching across several elements and points in time would have not only blown up the file size when using it, it also would have really affected it's usability and speed.
 
 
 
