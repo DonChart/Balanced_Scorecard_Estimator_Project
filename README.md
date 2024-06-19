@@ -7,6 +7,8 @@ and a tiered scoring system that only awards points if certain scoring threshold
 daily without intervention after completion.  It was built in a manner that yearly updates to elements and tiered scoring were easily implemented.
 ----
 
+** Disclaimer - This dataset is not active and has some omissions to protect any possible Intellectual Property
+
 ## Table of Contents
 - [Tools](#Tools)
 - [Data Acquisition / SQL Preperation](#Data-Acquisition)
